@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eshop-product
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+        app: eshop-product
+  template:
+    metadata:
+      labels:
+        app: eshop-product
+    spec:
+      containers:
+      - name: eshop-product
+        image: mycat/eshop-product-image:v2
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+        - name: config
+          mountPath: /opt/app/eshop_service/config
+        ports:
+          - containerPort: 8036
+      volumes:
+      - name: config
+        configMap:
+          name: eshop-product-config
+          items:
+            - key: application-product.yml
+              path: application.yml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eshop-product-svc
+spec:
+  type: ClusterIP
+  sessionAffinity: ClientIP
+  selector:
+    app: eshop-product
+  ports:
+  - port: 8036
+    targetPort: 8036

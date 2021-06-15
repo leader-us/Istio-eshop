@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eshop-cart
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+        app: eshop-cart
+  template:
+    metadata:
+      labels:
+        app: eshop-cart
+    spec:
+      containers:
+      - name: eshop-cart
+        image:  mycat/eshop-cart-image:v2
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+        - name: config
+          mountPath: /opt/app/eshop_service/config
+        ports:
+          - containerPort: 8035
+      volumes:
+      - name: config
+        configMap:
+          name: eshop-cart-config
+          items:
+            - key: application-cart.yml
+              path: application.yml  
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eshop-cart-svc
+spec:
+  type: ClusterIP
+  sessionAffinity: ClientIP
+  selector:
+    app: eshop-cart
+  ports:
+  - port: 8035
+    targetPort: 8035

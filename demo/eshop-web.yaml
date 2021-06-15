@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eshop-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+        app: eshop-web
+  template:
+    metadata:
+      labels:
+        app: eshop-web
+    spec:
+      containers:
+      - name: eshop-web
+        image: mycat/eshop-web:v2
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+        - name: config
+          mountPath: /opt/app/eshop_service/config
+        ports:
+          - containerPort: 8033
+      volumes:
+      - name: config
+        configMap:
+          name: eshop-web-config
+          items:
+            - key: application-web.yml
+              path: application.yml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eshop-web-svc
+spec:
+  type: LoadBalancer
+  sessionAffinity: ClientIP
+  selector:
+    app: eshop-web
+  ports:
+  - port: 8033
+    nodePort: 30003

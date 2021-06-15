@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eshop-mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+        app: eshop-mysql
+  template:
+    metadata:
+      labels:
+        app: eshop-mysql
+    spec:
+      containers:
+      - name: mysql
+        image: docker.io/mysql:5.7
+        imagePullPolicy: IfNotPresent
+        ports:
+          - containerPort: 3306
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: '123456'
+        - name: MYSQL_DATABASE
+          value: HPE_APP
+        - name: MYSQL_USER
+          value: lession
+        - name: MYSQL_PASSWORD
+          value: mypass
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eshop-mysql-svc
+spec:
+  type: ClusterIP
+  selector:
+    app: eshop-mysql
+  ports:
+  - port: 3306
+    targetPort: 3306
